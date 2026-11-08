@@ -1,0 +1,71 @@
+model,prompt,dataset,rule,target,ground_truth,verdict,confidence,likely_explanation,seconds
+Foundation-Sec 8B,v1,synthetic,unusual_port,203.0.113.50:8443,malicious,suspicious,75,,3.9
+Foundation-Sec 8B,v1,synthetic,unusual_port,198.51.100.20:5222,benign,suspicious,70,,3.5
+Foundation-Sec 8B,v1,synthetic,unusual_port,192.168.56.240:9100,benign,suspicious,70,,3.2
+Foundation-Sec 8B,v1,synthetic,new_website,198.51.100.77:443,benign,suspicious,60,,3.1
+Foundation-Sec 8B,v1,synthetic,suspicious_domain,qx7v2k9d4m8z1w5r.top,suspicious,suspicious,70,,3.6
+Foundation-Sec 8B,v1,synthetic,suspicious_domain,upd8-k3x9q.duckdns.org,malicious,suspicious,75,,3.9
+Foundation-Sec 8B,v1,synthetic,scan,port scan: 40 ports on one host + ping sweep: 25 hosts pinged,malicious,suspicious,85,,3.8
+Foundation-Sec 8B,v1,synthetic,beacon,203.0.113.50:8443,malicious,suspicious,85,,3.3
+Foundation-Sec 8B,v1,demo,unusual_port,185.220.101.45:4444,malicious,suspicious,70,,3.3
+Foundation-Sec 8B,v1,demo,unusual_port,40.99.10.34:993,benign,suspicious,70,,3.6
+Foundation-Sec 8B,v1,demo,unusual_port,10.0.0.240:9100,benign,suspicious,70,,3.3
+Foundation-Sec 8B,v1,demo,unusual_port,10.0.0.101:445,malicious,suspicious,75,,3.3
+Foundation-Sec 8B,v1,real,unusual_port,home-pc:7680,benign,suspicious,75,,3.4
+Foundation-Sec 8B,v1,real,unusual_port,home-router:49152,benign,suspicious,70,,3.7
+Foundation-Sec 8B,v2,synthetic,unusual_port,203.0.113.50:8443,malicious,suspicious,75,Automated callback to an external host on an unusual port with a dynamic-DNS subdomain.,5.2
+Foundation-Sec 8B,v2,synthetic,unusual_port,198.51.100.20:5222,benign,suspicious,70,Automated call-back to an external host on an unusual port with a high packet count.,4.6
+Foundation-Sec 8B,v2,synthetic,unusual_port,192.168.56.240:9100,benign,suspicious,70,Potential unauthorized service interaction on an unusual port.,4
+Foundation-Sec 8B,v2,synthetic,new_website,198.51.100.77:443,benign,suspicious,70,First-time connection to a website not in the list of well-known trusted services.,5
+Foundation-Sec 8B,v2,synthetic,suspicious_domain,qx7v2k9d4m8z1w5r.top,suspicious,malicious,85,Automated call-back to a potentially malicious domain with a high-risk top-level domain.,4.4
+Foundation-Sec 8B,v2,synthetic,suspicious_domain,upd8-k3x9q.duckdns.org,malicious,malicious,85,The DNS lookup to a dynamic DNS service with a suspiciously long and random-looking subdomain suggests potential malicious activity.,9
+Foundation-Sec 8B,v2,synthetic,scan,port scan: 40 ports on one host + ping sweep: 25 hosts pinged,malicious,malicious,90,"Automated port scan and ping sweep from a host within the internal network, indicative of reconnaissance activity.",4
+Foundation-Sec 8B,v2,synthetic,beacon,203.0.113.50:8443,malicious,suspicious,75,Automated call-backs to an unknown external host on a non-standard port.,8.7
+Foundation-Sec 8B,v2,demo,unusual_port,185.220.101.45:4444,malicious,suspicious,70,Automated callback to an unusual port possibly indicating a backdoor or C2 channel.,4.8
+Foundation-Sec 8B,v2,demo,unusual_port,40.99.10.34:993,benign,suspicious,70,Potential unauthorized application attempting to communicate on an unusual port.,8
+Foundation-Sec 8B,v2,demo,unusual_port,10.0.0.240:9100,benign,suspicious,70,Potential unauthorized access attempt to a non-standard port.,4.2
+Foundation-Sec 8B,v2,demo,unusual_port,10.0.0.101:445,malicious,suspicious,70,"Potential SMB (port 445) activity to an internal host, which could be legitimate file sharing or malicious lateral movement.",5
+Foundation-Sec 8B,v2,real,unusual_port,home-pc:7680,benign,suspicious,75,Automated call-back to an internal host on an unusual port.,4.5
+Foundation-Sec 8B,v2,real,unusual_port,home-router:49152,benign,suspicious,70,Automated call-back to internal infrastructure on an unusual port,5.5
+WhiteRabbitNeo 7B,v1,synthetic,unusual_port,203.0.113.50:8443,malicious,suspicious,60,,19.1
+WhiteRabbitNeo 7B,v1,synthetic,unusual_port,198.51.100.20:5222,benign,suspicious,60,,3
+WhiteRabbitNeo 7B,v1,synthetic,unusual_port,192.168.56.240:9100,benign,suspicious,60,,3.2
+WhiteRabbitNeo 7B,v1,synthetic,new_website,198.51.100.77:443,benign,suspicious,60,,3.7
+WhiteRabbitNeo 7B,v1,synthetic,suspicious_domain,qx7v2k9d4m8z1w5r.top,suspicious,suspicious,70,,2.9
+WhiteRabbitNeo 7B,v1,synthetic,suspicious_domain,upd8-k3x9q.duckdns.org,malicious,suspicious,70,,3.8
+WhiteRabbitNeo 7B,v1,synthetic,scan,port scan: 40 ports on one host + ping sweep: 25 hosts pinged,malicious,malicious,90,,3.4
+WhiteRabbitNeo 7B,v1,synthetic,beacon,203.0.113.50:8443,malicious,malicious,90,,3.3
+WhiteRabbitNeo 7B,v1,demo,unusual_port,185.220.101.45:4444,malicious,suspicious,60,,3
+WhiteRabbitNeo 7B,v1,demo,unusual_port,40.99.10.34:993,benign,suspicious,60,,3.5
+WhiteRabbitNeo 7B,v1,demo,unusual_port,10.0.0.240:9100,benign,suspicious,60,,3.1
+WhiteRabbitNeo 7B,v1,demo,unusual_port,10.0.0.101:445,malicious,suspicious,60,,2.9
+WhiteRabbitNeo 7B,v1,real,unusual_port,home-pc:7680,benign,suspicious,60,,2.8
+WhiteRabbitNeo 7B,v1,real,unusual_port,home-router:49152,benign,suspicious,60,,2.9
+WhiteRabbitNeo 7B,v2,synthetic,unusual_port,203.0.113.50:8443,malicious,suspicious,70,Unusual port usage with high packet volume,4.1
+WhiteRabbitNeo 7B,v2,synthetic,unusual_port,198.51.100.20:5222,benign,suspicious,75,Unusual port usage with high packet volume,4.3
+WhiteRabbitNeo 7B,v2,synthetic,unusual_port,192.168.56.240:9100,benign,suspicious,70,Printer driver update or configuration,3.5
+WhiteRabbitNeo 7B,v2,synthetic,new_website,198.51.100.77:443,benign,benign,95,Legitimate access to a well-known educational website.,3.3
+WhiteRabbitNeo 7B,v2,synthetic,suspicious_domain,qx7v2k9d4m8z1w5r.top,suspicious,suspicious,75,DNS lookup of a high-risk domain,3.8
+WhiteRabbitNeo 7B,v2,synthetic,suspicious_domain,upd8-k3x9q.duckdns.org,malicious,suspicious,75,DNS lookup for a dynamic DNS domain,3.8
+WhiteRabbitNeo 7B,v2,synthetic,scan,port scan: 40 ports on one host + ping sweep: 25 hosts pinged,malicious,suspicious,75,Port scan and ping sweep activity,3.5
+WhiteRabbitNeo 7B,v2,synthetic,beacon,203.0.113.50:8443,malicious,suspicious,75,Possible malware beaconing to a command and control server.,4.2
+WhiteRabbitNeo 7B,v2,demo,unusual_port,185.220.101.45:4444,malicious,suspicious,70,Potential unauthorized access attempt,3.8
+WhiteRabbitNeo 7B,v2,demo,unusual_port,40.99.10.34:993,benign,suspicious,70,Outbound email service or encrypted connection,3.6
+WhiteRabbitNeo 7B,v2,demo,unusual_port,10.0.0.240:9100,benign,suspicious,70,Printer driver update or network printer management,4.2
+WhiteRabbitNeo 7B,v2,demo,unusual_port,10.0.0.101:445,malicious,benign,95,Internal network communication,4.6
+WhiteRabbitNeo 7B,v2,real,unusual_port,home-pc:7680,benign,suspicious,75,Internal host communication on an unusual port,3.4
+WhiteRabbitNeo 7B,v2,real,unusual_port,home-router:49152,benign,suspicious,70,Internal host communicating with an unknown service on an unusual port,3.5
+Qwen3 14B,v2,synthetic,unusual_port,203.0.113.50:8443,malicious,suspicious,75,Potential malicious activity using non-standard port for communication,43.6
+Qwen3 14B,v2,synthetic,unusual_port,198.51.100.20:5222,benign,suspicious,75,Potential communication with a known malicious or suspicious service on port 5222,6.3
+Qwen3 14B,v2,synthetic,unusual_port,192.168.56.240:9100,benign,benign,85,Printer communication on internal network,4.1
+Qwen3 14B,v2,synthetic,new_website,198.51.100.77:443,benign,benign,95,Legitimate web traffic to a well-known programming language website,4.1
+Qwen3 14B,v2,synthetic,suspicious_domain,qx7v2k9d4m8z1w5r.top,suspicious,suspicious,75,Potential use of a high-risk domain for malicious activity,5.7
+Qwen3 14B,v2,synthetic,suspicious_domain,upd8-k3x9q.duckdns.org,malicious,suspicious,75,Potential use of a dynamic-DNS service for covert communication,5.4
+Qwen3 14B,v2,synthetic,scan,port scan: 40 ports on one host + ping sweep: 25 hosts pinged,malicious,suspicious,75,Port scan and ping sweep activity from a single host,5.1
+Qwen3 14B,v2,synthetic,beacon,203.0.113.50:8443,malicious,suspicious,85,Malware beaconing to an external host,7.8
+Qwen3 14B,v2,demo,unusual_port,185.220.101.45:4444,malicious,suspicious,75,Potential malicious activity using port 4444,5.6
+Qwen3 14B,v2,demo,unusual_port,40.99.10.34:993,benign,benign,85,Legitimate use of port 993 for email (IMAPS) by a user or application.,4.6
+Qwen3 14B,v2,demo,unusual_port,10.0.0.240:9100,benign,benign,85,Printer communication over port 9100,4.2
+Qwen3 14B,v2,demo,unusual_port,10.0.0.101:445,malicious,benign,85,Legitimate SMB communication between internal hosts,4.6
+Qwen3 14B,v2,real,unusual_port,home-pc:7680,benign,benign,85,Local communication between devices on the same network,4.5
+Qwen3 14B,v2,real,unusual_port,home-router:49152,benign,benign,85,Legitimate local communication between devices on the same network,6.2

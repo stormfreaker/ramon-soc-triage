@@ -1,0 +1,7 @@
+# Parse RAMON's tshark CSV. Splunk turns header names such as ip.src into ip_src,
+# which is what the detection rules in config.json search for.
+[tshark_csv]
+INDEXED_EXTRACTIONS = csv
+TIMESTAMP_FIELDS = time_iso
+TIME_FORMAT = %Y-%m-%d %H:%M:%S.%6N
+SHOULD_LINEMERGE = false

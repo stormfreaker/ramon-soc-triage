@@ -1,0 +1,9 @@
+{
+  "src_ip": "10.0.0.23",
+  "dest_ip": "185.220.101.45",
+  "dest_port": "4444",
+  "packets": "312",
+  "first_seen": "1729670400",
+  "last_seen": "1729674000",
+  "note": "Repeated outbound TCP connections from a workstation to an external host on port 4444 over one hour"
+}

@@ -1,0 +1,78 @@
+{
+  "prompt_file": "system_prompt_v2.txt",
+  "prompt_version": "v2",
+  "max_alerts": 50,
+  "splunk": {
+    "rest_url": "https://localhost:8089",
+    "token": "YOUR_SPLUNK_REST_TOKEN",
+    "username": "YOUR_SPLUNK_USERNAME",
+    "password": "",
+    "verify_ssl": false,
+    "earliest": "-60m"
+  },
+  "hec": {
+    "url": "https://localhost:8088",
+    "token": "YOUR_HEC_TOKEN",
+    "index": "ramon",
+    "verify_ssl": false
+  },
+  "model": {
+    "url": "http://127.0.0.1:11434",
+    "name": "qwen3:14b",
+    "temperature": 0.0,
+    "num_ctx": 8192,
+    "timeout": 300,
+    "think": false
+  },
+  "context_search": "search index={index} sourcetype=tshark_csv NOT source=\"*demo_capture.csv\" ip_src=\"{src_ip}\" | rename ip_dst as dest_ip, tcp_dstport as dest_port, dns_qry_name as dns_query, tls_handshake_extensions_server_name as tls_sni | stats count as total_packets dc(dest_ip) as distinct_destinations values(dest_port) as ports_contacted values(dns_query) as dns_queries values(tls_sni) as websites | eval ports_contacted=mvindex(mvfilter(ports_contacted!=\"\" AND tonumber(ports_contacted)<49152),0,19), dns_queries=mvindex(mvfilter(dns_queries!=\"\"),0,19), websites=mvindex(mvfilter(websites!=\"\"),0,19)",
+  "service": {
+    "cycle_seconds": 120,
+    "interface": "",
+    "tshark": "C:\\Program Files\\Wireshark\\tshark.exe",
+    "keep_csv_days": 1
+  },
+  "rules": [
+    {
+      "name": "unusual_port",
+      "enabled": true,
+      "earliest": "-60m",
+      "max_alerts": 10,
+      "description": "A TCP conversation on a port other than web (80/443) or DNS (53) with more than 5 packets.",
+      "search": "search index={index} sourcetype=tshark_csv NOT source=\"*demo_capture.csv\" tcp_dstport!=\"\" tcp_srcport!=\"\" | eval sp=tonumber(tcp_srcport), dp=tonumber(tcp_dstport) | eval dest_port=if(sp<dp, sp, dp), src_ip=if(sp<dp, ip_dst, ip_src), dest_ip=if(sp<dp, ip_src, ip_dst) | search NOT dest_port IN (80, 443, 53, 9997, 8088, 8089) | stats count as packets min(frame_time_epoch) as first_seen max(frame_time_epoch) as last_seen by src_ip dest_ip dest_port | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | where packets > 5 | eval indicator=\"port \".dest_port, alert_key=src_ip.\"|\".dest_ip.\"|\".dest_port | sort - packets"
+    },
+    {
+      "name": "new_website",
+      "enabled": true,
+      "earliest": "-7d",
+      "max_alerts": 5,
+      "description": "A website (HTTPS or HTTP name) contacted for the first time in the last hour, not one of the well-known trusted services. Covers the port-443 blind spot.",
+      "search": "search index={index} sourcetype=tshark_csv NOT source=\"*demo_capture.csv\" (tls_handshake_extensions_server_name!=\"\" OR http_host!=\"\") | eval site=lower(coalesce(nullif(tls_handshake_extensions_server_name,\"\"), http_host)) | eval site=replace(site,\":\\d+$\",\"\") | eval domain=if(match(site,\"\\.(co|ac|gov|org|net|com|ltd|me)\\.[a-z]{{2}}$\"), replace(site,\"^.*?([^.]+\\.[^.]+\\.[^.]+)$\",\"\\1\"), replace(site,\"^.*?([^.]+\\.[^.]+)$\",\"\\1\")) | search NOT domain IN (\"google.com\", \"googleapis.com\", \"gstatic.com\", \"googleusercontent.com\", \"googlevideo.com\", \"youtube.com\", \"ytimg.com\", \"microsoft.com\", \"windows.com\", \"windowsupdate.com\", \"live.com\", \"office.com\", \"office365.com\", \"microsoftonline.com\", \"msn.com\", \"bing.com\", \"azure.com\", \"azureedge.net\", \"azurefd.net\", \"akamaized.net\", \"akamai.net\", \"akamaiedge.net\", \"cloudflare.com\", \"apple.com\", \"icloud.com\", \"amazonaws.com\", \"amazon.com\", \"cloudfront.net\", \"github.com\", \"githubusercontent.com\", \"facebook.com\", \"fbcdn.net\", \"whatsapp.com\", \"whatsapp.net\", \"instagram.com\", \"splunk.com\", \"anthropic.com\", \"claude.ai\", \"openai.com\", \"chatgpt.com\", \"mozilla.org\", \"brave.com\", \"epicgames.com\", \"epicgames.dev\", \"ea.com\", \"steamcommunity.com\", \"steampowered.com\", \"discord.com\", \"discord.gg\", \"spotify.com\", \"nvidia.com\", \"hackthebox.com\", \"tryhackme.com\", \"intercom.io\", \"claudeusercontent.com\", \"thmcell.click\") | stats min(_time) as ft max(_time) as lt count as connections values(site) as names values(ip_src) as src_ip values(ip_dst) as dest_ips by domain | where ft >= relative_time(now(), \"-60m\") | eval src_ip=mvindex(src_ip,0), dest_ip=mvindex(dest_ips,0), dest_ips=mvindex(dest_ips,0,4), names=mvindex(names,0,4), dest_port=\"443\" | eval indicator=domain, first_seen=strftime(ft, \"%Y-%m-%d %H:%M:%S\"), alert_key=domain | sort - ft | fields - ft lt"
+    },
+    {
+      "name": "suspicious_domain",
+      "enabled": true,
+      "earliest": "-60m",
+      "max_alerts": 5,
+      "description": "A DNS lookup of a domain with risky traits: dynamic-DNS or tunnelling services, high-risk top-level domains, or long random-looking names.",
+      "search": "search index={index} sourcetype=tshark_csv NOT source=\"*demo_capture.csv\" dns_qry_name!=\"\" udp_dstport=53 | eval q=lower(dns_qry_name) | where NOT match(q, \"\\.(local|arpa|lan|home)$\") | where NOT match(q, \"(^|\\.)(claudeusercontent\\.com|claude\\.ai|anthropic\\.com|thmcell\\.click|tryhackme\\.com|hackthebox\\.com)$\") | eval parts=split(q,\".\"), label=mvindex(parts,0), tld=mvindex(parts,-1), llen=len(label), digits=len(replace(label,\"[^0-9]\",\"\")) | eval reason=case(match(q,\"(duckdns\\.org|no-ip\\.(com|org|biz|info)|noip\\.com|ddns\\.net|hopto\\.org|zapto\\.org|sytes\\.net|servebeer\\.com|dynu\\.(com|net)|afraid\\.org|changeip\\.com|ngrok(-free)?\\.(io|app|dev)|trycloudflare\\.com|serveo\\.net)$\"), \"dynamic DNS or tunnelling service\", in(tld,\"zip\",\"mov\",\"top\",\"xyz\",\"tk\",\"ml\",\"ga\",\"cf\",\"gq\",\"click\",\"country\",\"kim\",\"work\",\"rest\",\"cam\"), \"high-risk top-level domain .\" . tld, llen>=40, \"very long subdomain (possible DNS tunnelling)\", llen>=25 AND digits>=4, \"long random-looking name\", true(), null()) | where isnotnull(reason) | stats count as lookups min(_time) as ft values(reason) as reason by ip_src q | rename ip_src as src_ip | eval indicator=q, dest_ip=\"\", dest_port=\"53\", first_seen=strftime(ft, \"%Y-%m-%d %H:%M:%S\"), alert_key=src_ip.\"|\".q | sort - ft | fields - ft"
+    },
+    {
+      "name": "scan",
+      "enabled": true,
+      "earliest": "-15m",
+      "max_alerts": 5,
+      "description": "One machine probing many ports on one host, many internal hosts, or pinging many hosts within 5 minutes (port scan, host sweep or ping sweep).",
+      "search": "search index={index} sourcetype=tshark_csv NOT source=\"*demo_capture.csv\" ((tcp_flags_syn IN (\"1\",\"True\") tcp_flags_ack IN (\"0\",\"False\")) OR frame_protocols=\"*:icmp*\") | eval proto=if(like(frame_protocols,\"%icmp%\"),\"icmp\",\"tcp\"), internal=if(cidrmatch(\"10.0.0.0/8\",ip_dst) OR cidrmatch(\"192.168.0.0/16\",ip_dst) OR cidrmatch(\"172.16.0.0/12\",ip_dst),1,0) | bin _time span=5m as bucket | eventstats dc(tcp_dstport) as ports_on_host by bucket ip_src ip_dst | stats max(ports_on_host) as max_ports_one_host dc(eval(if(internal=1 AND proto=\"tcp\",ip_dst,null()))) as internal_hosts dc(eval(if(proto=\"icmp\",ip_dst,null()))) as pinged_hosts dc(ip_dst) as hosts_contacted min(_time) as ft by bucket ip_src | eval reason=mvappend(if(max_ports_one_host>=15, \"port scan: \".max_ports_one_host.\" ports on one host\", null()), if(internal_hosts>=10, \"host sweep: \".internal_hosts.\" internal hosts\", null()), if(pinged_hosts>=10, \"ping sweep: \".pinged_hosts.\" hosts pinged\", null())) | where isnotnull(reason) | eval reason=mvjoin(reason, \" + \") | rename ip_src as src_ip | eval indicator=reason, dest_ip=\"\", dest_port=\"\", first_seen=strftime(ft, \"%Y-%m-%d %H:%M:%S\"), alert_key=src_ip.\"|\".strftime(bucket,\"%Y%m%d%H%M\") | fields - bucket ft"
+    },
+    {
+      "name": "beacon",
+      "enabled": true,
+      "earliest": "-60m",
+      "max_alerts": 5,
+      "description": "Repeated new connections from one host to the same destination and port at very regular intervals (possible malware calling home).",
+      "search": "search index={index} sourcetype=tshark_csv NOT source=\"*demo_capture.csv\" tcp_flags_syn IN (\"1\",\"True\") tcp_flags_ack IN (\"0\",\"False\") | sort 0 _time | streamstats current=f last(_time) as prev by ip_src ip_dst tcp_dstport | eval gap=_time-prev | stats count as connections avg(gap) as avg_gap stdev(gap) as sd_gap min(_time) as ft by ip_src ip_dst tcp_dstport | where connections>=6 AND avg_gap>=10 AND avg_gap<=900 | eval jitter=round(sd_gap/avg_gap,2), avg_gap=round(avg_gap,1) | where jitter<=0.15 | rename ip_src as src_ip ip_dst as dest_ip tcp_dstport as dest_port | eval indicator=\"every \".avg_gap.\"s (jitter \".jitter.\")\", first_seen=strftime(ft, \"%Y-%m-%d %H:%M:%S\"), alert_key=src_ip.\"|\".dest_ip.\"|\".dest_port.\"|\".strftime(ft,\"%Y%m%d%H\") | fields - ft sd_gap"
+    }
+  ],
+  "network_index": "network",
+  "dest_context_search": "search index={index} sourcetype=tshark_csv NOT source=\"*demo_capture.csv\" (ip_dst=\"{dest_ip}\" OR dns_a=\"{dest_ip}\") | eval to_dest=if(ip_dst=\"{dest_ip}\",1,0), dns_name=if(dns_a=\"{dest_ip}\", dns_qry_name, null()), web=if(ip_dst=\"{dest_ip}\", coalesce(nullif(tls_handshake_extensions_server_name,\"\"), nullif(http_host,\"\")), null()) | stats sum(to_dest) as packets_to_destination dc(eval(if(to_dest=1,ip_src,null()))) as hosts_contacting values(dns_name) as dns_names_resolving_to_it values(web) as website_names_seen | eval internal=if(cidrmatch(\"10.0.0.0/8\",\"{dest_ip}\") OR cidrmatch(\"192.168.0.0/16\",\"{dest_ip}\") OR cidrmatch(\"172.16.0.0/12\",\"{dest_ip}\"),\"yes - private/internal address\",\"no - external internet address\"), dns_names_resolving_to_it=coalesce(mvindex(dns_names_resolving_to_it,0,4),\"none seen\"), website_names_seen=coalesce(mvindex(website_names_seen,0,4),\"none seen\")"
+}

@@ -1,0 +1,10 @@
+rule,target,ground_truth
+beacon,203.0.113.50:8443,malicious
+unusual_port,203.0.113.50:8443,malicious
+suspicious_domain,upd8-k3x9q.duckdns.org,malicious
+unusual_port,198.51.100.20:5222,benign
+scan,port scan by 192.168.56.20,malicious
+scan,ping sweep by 192.168.56.20,malicious
+suspicious_domain,qx7v2k9d4m8z1w5r.top,suspicious
+new_website,python.org,benign
+unusual_port,192.168.56.240:9100,benign

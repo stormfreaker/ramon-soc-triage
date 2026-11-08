@@ -1,0 +1,30 @@
+# Real settings and secrets (copy config.example.json to config.json)
+config.json
+config_backup_*.json
+*.local.json
+
+# Runtime state and logs
+*.log
+status.json
+seen_alerts.json
+ramon.lock
+STOP
+
+# Captures and Splunk drop folders
+pcaps/
+exports/
+incoming/
+*.pcap
+*.pcapng
+
+# Triage results (contain your own IPs and domains)
+results.csv
+results_*.csv
+
+# Private documents
+*.docx
+
+# Python
+__pycache__/
+*.pyc
+.venv/

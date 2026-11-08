@@ -1,0 +1,6 @@
+# Monitor the folder RAMON drops its CSV files into.
+# Put this in $SPLUNK_HOME/etc/apps/search/local/inputs.conf and change the path.
+[monitor://C:\path\to\RAMON\incoming\live_*.csv]
+index = network
+sourcetype = tshark_csv
+disabled = 0
